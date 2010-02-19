@@ -309,12 +309,14 @@ include_once('include/page_header.php');
 	{
 		$cmbMibs->addItem('','---'.$path);
 		foreach(glob($path."/*.txt")  as $filename){
-			if (preg_match('/^'.preg_quote($path,'/').'\/(.+)\.txt$/',$filename,$matches))
-				$cmbMibs->addItem($matches[1],$matches[1]);
+			$modulename = get_module_name($filename);
+			if ($modulename)	
+				$cmbMibs->addItem($modulename,$modulename);
 		}
 		foreach(glob($path."/*.mib")  as $filename){
-			if (preg_match('/^'.preg_quote($path,'/').'\/(.+)\.mib$/',$filename,$matches))
-				$cmbMibs->addItem($matches[1],$matches[1]);
+			$modulename = get_module_name($filename);
+			if ($modulename)	
+				$cmbMibs->addItem($modulename,$modulename);
 		}
 		
 	}
@@ -445,6 +447,24 @@ include_once('include/page_footer.php');
 ?>
 
 <?php
+function get_module_name($filename)
+{
+	$modulename = '';
+	$handle = @fopen($filename, "r");
+	if ($handle) {
+		while (!feof($handle)) {
+			$buffer = fgets($handle, 4096);
+			if (preg_match('/^\s*(\S+)\s*DEFINITIONS\s*::=\s*BEGIN/i',$buffer,$matches))
+			{
+				$modulename = $matches[1];
+				break;
+			}
+			
+		}
+		fclose($handle);
+	}
+	return ($modulename);
+}
 
 function get_oid_from_name($name)
 {
@@ -494,7 +514,7 @@ function get_oid_value($community, $server_ip, $oid, $idx)
 	if (preg_match('/^[0-9]+$/', $idx)) {
 		$cmd = "snmpget -v 2c -c $community -M ".MIBS_ALL_PATH." -m ALL $server_ip $oid.$idx";  
     } else {        
-		$cmd = "snmpget -v 2c -c $community -M ".MIBS_ALL_PATH." -m ALL $server_ip $oid.\\\"".$idx."\\\"";
+		$cmd = "snmpget -v 2c -c $community -M ".MIBS_ALL_PATH." -m ALL $server_ip $oid.\"".$idx."\"";
     }	
 	$results = exec($cmd);
 	
