@@ -1,0 +1,83 @@
+General
+
+I write the tool because I'm tired in create SNMP items for zabbix. To create a useful zabbix's template for SNMP devices, I used to open a MIB browser to get correct OID then fill the zabbix's item forms. It'm so boring when create a long list of items :-( . There is a first attempt of work out this problem, zload_snmpwalk http://zabbix.com/wiki/howto/monitor/snmp/zload_snmpwalk. But I rather a GUI tool. So why just make one?
+
+SNMP builder is a add-in for Zabbix. It provide browse MIB for values and informations, automatically convert into Zabbix items and insert them into a template.
+
+I code it with zabbix 1.8 so it not work on other version (I will port into prior version later)
+Download
+
+Version number of snmpbuilder with same with zabbix version for that it works.
+
+SnmpBuilder 1.8.1
+
+snmp_builder_1.8.1.zip (178.26 KiB, 55 downloads)
+
+Change log:
+
+    *
+      Fix undefined index warnings.
+    *
+      Include danrog's fix for non-numeric indexes.
+    *
+      From 1.8.1, zabbix not accept specified chars in key name. So I must replace them with underscore.
+
+Features
+
+    *
+      MIB Browser: you can select default MIB files or your own device MIBs to get OID tree. Click on the tree to retrieve value and information about a OID. Click to select the OID as Zabbix's item.
+    *
+      OID Table support: it assume that a OID whose name's end with string 'Table' is a OID Table. OID Table will retrieve with all it's indexes. Click on the cell to select the index as Zabbix's item. If my above assumption is wrong, you can use the checkbox .view as table. to switch between table and normal view.
+    *
+      Column selection: On OID Table, click on a header will select a whole column as Zabbix's items. It's useful if you create SNMP template for a 48 ports switch 8-).
+    *
+      Auto convert: I implement a simple convert from SNMP Type to Zabbix's item.
+
+Installation
+
+I try my best to not patch Zabbix's code, but still did a little to integrate the tool into Zabbix.
+
+* Unzip snmp_builder.zip into zabbix's web root. There is a snmp_builder.php and 3 js files under sump_builder sub-dir.
+
+    *
+      Open snmp_builder.php, edit MIBS_ALL_PATH for your own SNMP MIB's directories.
+
+define('MIBS_ALL_PATH', '/home/zabbix/public_html/snmp_builder/mibs:/usr/share/snmp/mibs');
+
+* Open include/menu.inc.php. At line 203, insert a piece of code
+
+                                  array('url'=>'snmp_builder.php',
+						'label'=>'SNMP Builder'
+					),
+
+Like this:
+
+		                      'label'=>S_NOTIFICATIONS
+					),
+				array('url'=>'locales.php',
+						'label'=>S_LOCALES
+					),
+				array('url'=>'snmp_builder.php',
+						'label'=>'SNMP Builder'
+					),
+				array('url'=>'instal.php',
+						'label'=>S_INSTALLATION,
+						'sub_pages'=>array('setup.php','warning.php')
+					)
+				)
+
+It for integrate snmp_builder.php as a menu item under Administration tab and between Locales and Install menu. In fact, you can add it in any place.
+
+    *
+      Open Zabbix, select Administation tab, you should see SNMP Builder in menu.
+
+Todos
+
+    *
+      Search OID: Sometimes I'm tired to dig into OID tree to find a OID. Why don't search it?
+    *
+      Edit item lists: Auto convert not work every cases. Why don't edit item's params (unit, delta, interval) before submit to Zabbix?
+    *
+      Detect default mib directory (edit MIB_ALL_PATH no more)
+
+
