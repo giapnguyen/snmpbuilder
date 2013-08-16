@@ -220,7 +220,7 @@ function onSaveItems(e)
 	
 	if (itemlist.data.size() === 0)
 		return;
-	json = itemlist.data.toJSON();
+	json = JSON.stringify(itemlist.data);
 	var get_oid_url = 'snmp_builder.php?save=1&output=json';
 	new Ajax.Request(get_oid_url, {
 		method: 'post',
