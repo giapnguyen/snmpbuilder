@@ -3392,9 +3392,13 @@ TafelTreeBaseBranch.prototype = {
 		if (this.objDrag) {
 			this.objDrag.destroy();
 		}
-		Droppables.remove(this.txt);
+//		Droppables.remove(this.txt);
 		for (var i = 0; i < this.children.length; i++) {
+                    try {
 			this.children[i].removeDragDrop();
+                    } catch (err) {
+                        console.log(err.message);
+                    };
 		}
 	},
 	
@@ -3978,9 +3982,9 @@ TafelTreeBaseBranch.prototype = {
 				Element.addClassName(this.txt, this.tree.classDrag);
 			}
 		}
-		if (this.struct.acceptdrop) {
+/*		if (this.struct.acceptdrop) {
 			Droppables.add(this.txt, {hoverclass: this.tree.classDragOver, onDrop: this.setDrop.bindAsEventListener(this)});
-		}
+		}*/
 		if (this.struct.tooltip) {
 			Event.observe(event, 'mouseover', this.evt_showTooltip.bindAsEventListener(this), false);
 			Event.observe(event, 'mouseout', this.evt_hideTooltip.bindAsEventListener(this), false);
