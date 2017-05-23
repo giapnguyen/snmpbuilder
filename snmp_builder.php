@@ -231,8 +231,9 @@ include_once('include/page_header.php');
 			// From 1.8.1 zabbix not accept special char in key, :( so we must replace them with underscore
 			$newkey = preg_replace('/[^0-9a-zA-Z_\.]/','_',$oid[0]);
 			
-			$item = array(
+			$item = [
 				'description'	=> $oid[0],
+                                'name'                  => $oid[0],
 				'key_'			=> $newkey,
 				'hostid'		=> $templateid,
 				'delay'		=> $oid[4],
@@ -242,41 +243,42 @@ include_once('include/page_header.php');
 				'snmp_community'=> $community,
 				'snmp_oid'		=> $oid_num,
 				'value_type'	=> $value_type,
-				'trapper_hosts'	=> null,
-				'snmp_port'		=> null,
+//				'trapper_hosts'	=> null,
+//// //				'snmp_port'		=> null,
 				'units'			=> $oid[3],
 				'multiplier'	=> $multiplier,
 				'delta'			=> $delta,
-				'snmpv3_securityname'	=> null,
+/*				'snmpv3_securityname'	=> null,
 				'snmpv3_securitylevel'	=> null,
 				'snmpv3_authpassphrase'	=> null,
-				'snmpv3_privpassphrase'	=> null,
+				'snmpv3_privpassphrase'	=> null, */
 				'formula'			=> $oid[5],
-				'trends'			=> null,
+/*				'trends'			=> null,
 				'logtimefmt'		=> null,
-				'valuemapid'		=> null,
+				'valuemapid'		=> null,*/
 				'delay_flex'		=> null,
-				'authtype'		=> null,
+/*				'authtype'		=> null,
 				'username'		=> null,
 				'password'		=> null,
 				'publickey'		=> null,
 				'privatekey'		=> null,
 				'params'			=> null,
-				'ipmi_sensor'		=> null,
-				'data_type'		=> $data_type);
+				'ipmi_sensor'		=> null, */
+				'data_type'		=> $data_type];
 				
 			array_push($items, $item);
 
 		}
 		
 		
-		foreach ($items as $item)
-		{
+#		foreach ($items as $item)
+#		{
 			DBstart();
 			$itemid = false;
-			$itemid = add_item($item);
+			$itemid = API::Item()->create($items);
+                        
 			$result = DBend($itemid);
-		}
+#		}
 		
 		
 		
@@ -396,7 +398,7 @@ include_once('include/page_header.php');
 	$action_w= (new CButton('save',_('Save')))->addStyle("margin: 10px;")->onClick('onSaveItems()');
 	$action_c= (new CButton('clear',_('Clear')))->addStyle("margin: 10px;")->onClick('onClearItems()');
 
-	$right_tab->addRow([$action_w,$action_c ]);
+	$right_tab->addRow([[],[$action_w,$action_c ]]);
 
 	// Left panel
 	$td_l = new CCol($left_tab);
