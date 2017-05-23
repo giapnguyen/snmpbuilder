@@ -11,6 +11,8 @@ Version number of snmpbuilder with same with zabbix version for that it works.
 
 SnmpBuilder 3.2
 
+WARNING! 
+This version is ported to zabbix 3.2 and IS NOT COMPATIBLE with zabbix 1.x/2.x. I wasn't tested it on zabbix 3.0, though. Mikhail Vasilyev.
 
 Change log:
 
