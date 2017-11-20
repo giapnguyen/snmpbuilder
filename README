@@ -38,27 +38,50 @@ I try my best to not patch Zabbix's code, but still did a little to integrate th
 
 define('MIBS_ALL_PATH', '/home/zabbix/public_html/snmp_builder/mibs:/usr/share/snmp/mibs');
 
-* Open include/menu.inc.php. At line 203, insert a piece of code
+* Open include/menu.inc.php.
 
-                                  array('url'=>'snmp_builder.php',
-						'label'=>'SNMP Builder'
-					),
+Find function zbx_construct_menu and add the following "page" in "config" section of $zbx_menu structure:
+(as for the moment of this writing, it's about line 222):
 
-Like this:
+                                [
+                                        'url' => 'snmp_builder.php',
+                                        'label' => 'SNMP Builder'
+                                ],
 
-		                      'label'=>S_NOTIFICATIONS
-					),
-				array('url'=>'locales.php',
-						'label'=>S_LOCALES
-					),
-				array('url'=>'snmp_builder.php',
-						'label'=>'SNMP Builder'
-					),
-				array('url'=>'instal.php',
-						'label'=>S_INSTALLATION,
-						'sub_pages'=>array('setup.php','warning.php')
-					)
-				)
+So the code would look like this:
+
+                                [
+                                        'url' => 'hosts.php',
+                                        'label' => _('Hosts'),
+                                        'sub_pages' => [
+                                                'items.php',
+                                                'triggers.php',
+                                                'graphs.php',
+                                                'applications.php',
+                                                'tr_logform.php',
+                                                'tr_testexpr.php',
+                                                'popup_trexpr.php',
+                                                'host_discovery.php',
+                                                'disc_prototypes.php',
+                                                'trigger_prototypes.php',
+                                                'host_prototypes.php',
+                                                'httpconf.php',
+                                                'popup_httpstep.php'
+                                        ]
+                                ],
+                                [
+                                        'url' => 'snmp_builder.php',
+                                        'label' => 'SNMP Builder'
+                                ],
+                                [
+                                        'url' => 'maintenance.php',
+                                        'label' => _('Maintenance')
+                                ],
+
+(you actually can choose, where to put this item in menu of zabbix. My decision is to put it into "Configuration" menu 
+between "Hosts" and "Maintainance" entries )
+
+
 
 * Open jsLoader.php. Add some values to $availableJScripts to make lines around line 51 look array like this:
 
