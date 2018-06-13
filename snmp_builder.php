@@ -237,7 +237,7 @@ include_once('include/page_header.php');
 				'key_'			=> $newkey,
 				'hostid'		=> $templateid,
 				'delay'		=> $oid[4],
-				'history'		=> 90,
+				'history'		=> 90*3600,
 				'status'		=> ITEM_STATUS_ACTIVE,
 				'type'			=> ITEM_TYPE_SNMPV2C,
 				'snmp_community'=> $community,
@@ -348,16 +348,14 @@ include_once('include/page_header.php');
 	//Left panel
 	$left_tab = new CTable();
 	//Oid tree
-/*	$oid_tree_w = new CWidget();
-	$oid_tree_w->setClass('header');
-	$oid_tree_w->addHeader("Oid Tree");*/
 	$oid_tree_w = new CColHeader("Oid Tree");
 	
 	$oid_tree_div = new CDiv();
 	$oid_tree_div->setAttribute("id","oidtree");
 	
 	$oid_tree_container = new CDiv($oid_tree_div);
-	$oid_tree_container->addStyle("overflow: auto; background-color: rgb(255, 255, 255); height: 300px; width: 300px;");
+        $oid_tree_container->addClass(ZBX_STYLE_TREEVIEW);
+	$oid_tree_container->addStyle("overflow: auto; height: 300px; width: 300px;");
 	
 	$oid_tree_w->addItem($oid_tree_container);
 	$left_tab->addRow($oid_tree_w);
