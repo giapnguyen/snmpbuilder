@@ -23,7 +23,7 @@
 ?>
 <?php
 
-define('MIBS_ALL_PATH', '/home/zabbix/public_html/snmp_builder/mibs:/usr/share/snmp/mibs');
+define('MIBS_ALL_PATH', '/var/www/html/zabbix/snmp_builder/mibs:/usr/share/snmp/mibs');
 
 require_once('include/config.inc.php');
 
@@ -231,52 +231,54 @@ include_once('include/page_header.php');
 			// From 1.8.1 zabbix not accept special char in key, :( so we must replace them with underscore
 			$newkey = preg_replace('/[^0-9a-zA-Z_\.]/','_',$oid[0]);
 			
-			$item = array(
+			$item = [
 				'description'	=> $oid[0],
+                                'name'                  => $oid[0],
 				'key_'			=> $newkey,
 				'hostid'		=> $templateid,
 				'delay'		=> $oid[4],
-				'history'		=> 90,
+				'history'		=> 90*3600,
 				'status'		=> ITEM_STATUS_ACTIVE,
 				'type'			=> ITEM_TYPE_SNMPV2C,
 				'snmp_community'=> $community,
 				'snmp_oid'		=> $oid_num,
 				'value_type'	=> $value_type,
-				'trapper_hosts'	=> null,
-				'snmp_port'		=> null,
+//				'trapper_hosts'	=> null,
+//// //				'snmp_port'		=> null,
 				'units'			=> $oid[3],
 				'multiplier'	=> $multiplier,
 				'delta'			=> $delta,
-				'snmpv3_securityname'	=> null,
+/*				'snmpv3_securityname'	=> null,
 				'snmpv3_securitylevel'	=> null,
 				'snmpv3_authpassphrase'	=> null,
-				'snmpv3_privpassphrase'	=> null,
+				'snmpv3_privpassphrase'	=> null, */
 				'formula'			=> $oid[5],
-				'trends'			=> null,
+/*				'trends'			=> null,
 				'logtimefmt'		=> null,
-				'valuemapid'		=> null,
+				'valuemapid'		=> null,*/
 				'delay_flex'		=> null,
-				'authtype'		=> null,
+/*				'authtype'		=> null,
 				'username'		=> null,
 				'password'		=> null,
 				'publickey'		=> null,
 				'privatekey'		=> null,
 				'params'			=> null,
-				'ipmi_sensor'		=> null,
-				'data_type'		=> $data_type);
+				'ipmi_sensor'		=> null, */
+				'data_type'		=> $data_type];
 				
 			array_push($items, $item);
 
 		}
 		
 		
-		foreach ($items as $item)
-		{
+#		foreach ($items as $item)
+#		{
 			DBstart();
 			$itemid = false;
-			$itemid = add_item($item);
+			$itemid = API::Item()->create($items);
+                        
 			$result = DBend($itemid);
-		}
+#		}
 		
 		
 		
@@ -322,7 +324,7 @@ include_once('include/page_header.php');
 	}
 	
 	$form->addItem(array('MIB:'.SPACE,$cmbMibs,SPACE));
-	
+	$form->addItem((new CTag('br')));
 	// server textbox
 	$ipbServer = new CTextBox('server_ip',$server_ip);
 	$form->addItem(array('Server:'.SPACE,$ipbServer,SPACE));
@@ -331,7 +333,9 @@ include_once('include/page_header.php');
 	$tbCommunity = new CTextBox('community',$community);
 	$form->addItem(array('Community:'.SPACE,$tbCommunity ,SPACE));
 	
-	$snmp_wdgt->addHeader('SNMP Builder', $form);
+	#$snmp_wdgt->addHeader('SNMP Builder', $form);
+	$snmp_wdgt->setTitle('SNMP Builder');
+        $snmp_wdgt->setControls($form);
 	
 	//Body
 	$outer_table = new CTable();
@@ -344,23 +348,20 @@ include_once('include/page_header.php');
 	//Left panel
 	$left_tab = new CTable();
 	//Oid tree
-	$oid_tree_w = new CWidget();
-	$oid_tree_w->setClass('header');
-	$oid_tree_w->addHeader("Oid Tree");
+	$oid_tree_w = new CColHeader("Oid Tree");
 	
 	$oid_tree_div = new CDiv();
 	$oid_tree_div->setAttribute("id","oidtree");
 	
 	$oid_tree_container = new CDiv($oid_tree_div);
-	$oid_tree_container->addStyle("overflow: auto; background-color: rgb(255, 255, 255); height: 300px; width: 300px;");
+        $oid_tree_container->addClass(ZBX_STYLE_TREEVIEW);
+	$oid_tree_container->addStyle("overflow: auto; height: 300px; width: 300px;");
 	
 	$oid_tree_w->addItem($oid_tree_container);
 	$left_tab->addRow($oid_tree_w);
 	
 	//Oid description
-	$oid_info_w = new CWidget();
-	$oid_info_w->setClass('header');
-	$oid_info_w->addHeader("Information");
+	$oid_info_w = new CColHeader("Information");
 	
 	$oid_info_div = new CDiv();
 	$oid_info_div->setAttribute("id","oidinfo");
@@ -371,9 +372,9 @@ include_once('include/page_header.php');
 	//Right panel
 	$right_tab = new CTable();
 	//Oidview
-	$oid_view_w = new CWidget();
-	$oid_view_w->setClass('header');
-	$oid_view_w->addHeader(array("Oid View - click to view as table:",new CCheckBox('viewtype','no','onViewType()',1)));
+	$oid_view_w = (new CColHeader(
+                        ( (new CCheckBox('viewtype'))->onClick('onViewType()') ) ));
+//	$oid_view_w->addHeader(array("Oid View - click to view as table:",));
 	
 	
 	$oid_view_div =  new CDiv();
@@ -381,11 +382,8 @@ include_once('include/page_header.php');
 	$oid_view_div ->addStyle("overflow: auto; max-height: 250px; width: 800px");
 	$oid_view_w->addItem($oid_view_div);
 	$right_tab->addRow($oid_view_w);
-	
 	//Itemlist
-	$item_list_w = new CWidget();
-	$item_list_w->setClass('header');
-	$item_list_w->addHeader("Item List");
+	$item_list_w = new CColHeader('Item List');
 	
 	$item_list_div = new CDiv();
 	$item_list_div->setAttribute("id","itemlist");
@@ -394,16 +392,13 @@ include_once('include/page_header.php');
 	$right_tab->addRow($item_list_w);
 	
 	//Action srow
-	$action_w= new CWidget();
-	$action_w->setClass('header');
-	
-	$action_w->addHeader(array(new CButton('save','Save','javascript: onSaveItems()'), SPACE, new CButton('clear','Clear List','javascript: onClearItems()')));
-	//$action_div = new CDiv();
-	//$action_w->addItem($action_div);
-	$right_tab->addRow($action_w);
-	
+        
+	$action_w= (new CButton('save',_('Save')))->addStyle("margin: 10px;")->onClick('onSaveItems()');
+	$action_c= (new CButton('clear',_('Clear')))->addStyle("margin: 10px;")->onClick('onClearItems()');
+
+	$right_tab->addRow([[],[$action_w,$action_c ]]);
+
 	// Left panel
-	
 	$td_l = new CCol($left_tab);
 	$td_l->setAttribute('valign','top');
 	$td_l->setAttribute('width','300px');
@@ -561,11 +556,20 @@ function get_templates()
 			'nopermissions' => 1
 		);
 	$template = array();
-	foreach (CTemplate::get($options) as $key => $value)
+        $templateget = API::Template()->get([
+               'output' => ['templateid', 'name'],
+               'preservekeys' => true
+        ]);
+
+#	foreach (CTemplate::get($options) as $key => $value)
+#	{
+#		array_push($template, array('key' => $key, 'host' => $value['host']));
+#	}
+#	
+	foreach ($templateget as $key => $value)
 	{
-		array_push($template, array('key' => $key, 'host' => $value['host']));
+		array_push($template, array('key' => $key, 'host' => $value['name']));
 	}
-	
 	return $template;
 	
 }

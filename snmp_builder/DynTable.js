@@ -93,7 +93,7 @@ DynTable.prototype = {
 	
 	createTable : function(){
 		this.container.update();
-		this.container.insert({ top: '<table class= "tableinfo" cellspacing="1" cellpadding="3" id="dyntable-'+this.element+'"></table>' });
+		this.container.insert({ top: '<table class= "list-table" cellspacing="1" cellpadding="3" id="dyntable-'+this.element+'"></table>' });
 		this.table = $('dyntable-'+this.element);
 		this.tbody = new Element('tbody');
 		this.table.insert({top: this.tbody});
